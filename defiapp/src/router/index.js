@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+import vault from '../views/vault.vue'
 import Home from '../views/home.vue'
-import loader from '../components/loader.vue'
+import monitor from '../views/monitor.vue'
 Vue.use(VueRouter)
 
 
@@ -11,7 +12,8 @@ let routes = [
     
   
   { path: '/', component: Home },
-  { path: '/loader', component: loader },
+  { path: '/vault/:id', component: vault },
+  { path: '/monitor', component: monitor },
     
    ]
    

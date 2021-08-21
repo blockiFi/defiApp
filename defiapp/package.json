@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "eth-revert-reason": "^1.0.3",
     "moralis": "0.0.30",
     "vue": "^2.6.11",
     "vue-router": "^3.5.2",

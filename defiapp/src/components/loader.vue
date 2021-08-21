@@ -3,7 +3,7 @@
  <div class="loader"  v-show="loading">
         <div class="nb-spinner"></div>
 </div>
-<div  v-show="!loading" >
+<div class="flex flex-col items-start overflow-x-hidden h-full bg-dm-primary"   v-show="!loading" >
         <v-app style="background : none; margin:0 ; padding : 0">
         <router-view></router-view>
         </v-app>

@@ -1,6 +1,8 @@
 const state = {
     base_url: "http://127.0.0.1:3232/",
-    api_url : "http://127.0.0.1:3232/api/"
+    api_url : "http://127.0.0.1:3232/api/",
+    bnbprice: 3230,
+    gDaiPrice: 0.999,
 }
 
 const getters = {}
