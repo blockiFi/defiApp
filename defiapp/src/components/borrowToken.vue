@@ -13,6 +13,7 @@
 
       <v-text-field
       v-model="borrowAmount"
+      color = "black"
       label="Token Amount"
       type="number"
       required

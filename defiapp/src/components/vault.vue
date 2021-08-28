@@ -6,32 +6,113 @@
             <div class="grid grid-cols-2 md:grid-cols-6 gap-2 w-full">
                 <div class="mb-4 md:flex md:mb-0 items-center col-span-4 md:col-span-4">
                     <div class="flex flex-row items-center space-x-2 text-lg whitespace-nowrap">
-                        <span>Your</span>
+                        <span style="color:white">Your Vaults</span>
                         
-                        <span>Vaults</span>
+                        <div v-if="search"  class=" " style=" padding-bottom: 20px;">
+                          <div class="row">
+                              <div class="col-2"></div>
+                            <div class="col-7"><input type="number" v-model="valtId" class="form-control" style="height: 40px; border-radius: 20px;margin-right: 30px; color: black" placeholder="Vault ID"></div>
+                            <div class="col-3"> 
+                                <button class="flex items-center rounded-lg bg-pink-deeper text-sm text-white py-3 px-3 search-button" >
+                              <div class="mr-2 ml-2" @click="searchVault()">Go</div>
+                          </button></div>
+                          </div>
+                        </div>
                     </div>
                 </div>
-                <button class="bg-transparent p-3 flex flex-row items-center justify-center rounded focus:outline-none focus:ring col-span-1 bg-dm-primary text-white opacity-100 disabled:pointer-events-none disabled:opacity-10">Search</button>
+                <button class="bg-transparent p-3 flex flex-row items-center justify-center rounded focus:outline-none focus:ring col-span-1 bg-dm-primary text-white opacity-100 disabled:pointer-events-none disabled:opacity-10" @click="openSearch()">Search</button>
                 <button class="bg-transparent p-3 flex flex-row items-center justify-center rounded focus:outline-none focus:ring bg-dm-primary text-white col-span-1 opacity-100 disabled:pointer-events-none disabled:opacity-10"  @click="create" >Create</button>
             </div>
+           
         </div>
         <div class="px-2 py-4 sm:p-8">
            
-            <div class="grid grid-cols-4 pb-4 px-4 text-sm  text-secondary">
+            <div class="grid grid-cols-4 pb-4 px-4 text-sm  text-secondary "  >
                 <div>Vault ID</div>
-                <div class="flex items-center justify-end">Collateral (MATIC)</div>
-                <div class="flex items-center justify-end">Debt (MAI)</div>
+                <div class="flex items-center justify-end">Collateral (ETH)</div>
+                <div class="flex items-center justify-end">Debt (gDai)</div>
                 <div class="flex items-center justify-end">Ratio</div>
             </div>
-            <div style="background: gray ; padding :15px; border-radius: 20px ; margin: 10px;" class="grid grid-cols-4 pb-4 px-4 text-sm  " v-for="vault  in vaults" :key="vault.id"  @click="openVault(vault.id)">
-              <div>{{vault.id}}</div>
+
+            <div class="flex-col space-y-2">
+              <div class="rounded bg-dm-secondary" v-for="vault  in vaults" :key="vault.id">
+                <div class="grid grid-cols-4 py-4 px-4 cursor-pointer select-none rounded text-sm" @click="expandVault(vault.id)">
+                    <div class="flex items-center">
+                        <div class="mr-4" style="color:white">Vault #{{vault.id}}</div>
+                    </div>
+                    <div class="flex justify-end items-center min-w-0">
+                        <span class="text-white text-right overflow-ellipsis overflow-hidden">{{parseFloat(vault.vaultCollateral).toFixed(2) }}</span>
+                    </div>
+                    <div class="flex justify-end items-center min-w-0">
+                        <span class="text-white text-right overflow-ellipsis overflow-hidden">{{parseFloat(vault.debt).toFixed(2) }}</span>
+                    </div>
+                    <div class="flex justify-end items-center">
+                        <div style="color:white">{{parseFloat(vault.ratio).toFixed(2)}} %</div>
+                </div>
+            </div>
+            <div class="p-4 space-y-4" :id="'vault' + vault.id" style="display: none;">
+                <div class="flex-col space-y-8">
+                    <div class="flex-col space-y-2">
+                        <div class="row">
+                            <div class="col-md-10 text-secondary md:text-white">Collateral</div>
+                            <div class="col-md-2 flex items-center">
+                                <div class="text-lg text-white overflow-hidden overflow-ellipsis"><span class="pull-right">{{parseFloat(vault.vaultCollateral).toFixed(2) }} Eth</span></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-md-10 text-secondary md:text-white">Debt</div>
+                          <div class="col-md-2 flex items-center">
+                              <div class="text-lg text-white overflow-hidden overflow-ellipsis"><span class="pull-right">{{parseFloat(vault.debt).toFixed(2) }} gDai</span></div>
+                          </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-10 text-secondary md:text-white">Collateral Value</div>
+                        <div class="col-md-2 flex items-center">
+                            <div class="text-lg text-white overflow-hidden overflow-ellipsis"><span class="pull-right">${{(
+                              parseFloat(bnbprice) * parseFloat(vault.vaultCollateral)).toFixed(2)}} USD</span></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-10 text-secondary md:text-white">Debt Value</div>
+                      <div class="col-md-2 flex items-center">
+                          <div class="text-lg text-white overflow-hidden overflow-ellipsis"><span class="pull-right">${{(
+                            parseFloat(gDaiPrice)* parseFloat(vault.debt)).toFixed(2)}} USD</span></div>
+                      </div>
+                     </div>
+
+                     <div class="row">
+                      <div class="col-md-10 text-secondary md:text-white">Collateral to Debt Ratio</div>
+                      <div class="col-md-2 flex items-center">
+                          <div class="text-lg text-white overflow-hidden overflow-ellipsis"><span class="pull-right">{{(((parseFloat(bnbprice) * parseFloat(vault.vaultCollateral)) /(parseFloat(gDaiPrice)* parseFloat(vault.debt))) *100).toFixed(2)}} %</span></div>
+                      </div>
+                     </div>
+
+                     <div class="row">
+                      <div class="col-md-10 text-secondary md:text-white">Available to Borrow</div>
+                      <div class="col-md-2 flex items-center">
+                          <div class="text-lg text-white overflow-hidden overflow-ellipsis"><span class="pull-right">{{parseFloat(vault.availableBorrow).toFixed(2)}} gDai</span></div>
+                      </div>
+                     </div>
+                       
+                       
+                       
+                       
+                        </div>
+                    </div>
+                    
+                    <button @click="openVault(vault.id)" class="bg-transparent p-3 flex flex-row items-center justify-center rounded focus:outline-none focus:ring text-white w-full bg-dm-primary opacity-100 disabled:pointer-events-none disabled:opacity-10">Manage</button>
+                </div>
+            </div>
+            </div>
+            <!-- <div style="color:white;background: #0f1416 ; padding :15px; border-radius: 20px ; margin: 10px;" class="grid grid-cols-4 pb-4 px-4 text-sm  " v-for="vault  in vaults" :key="vault.id"  @click="openVault(vault.id)">
+              <div>vault #{{vault.id}}</div>
               <div class="flex items-center justify-end">{{parseFloat(vault.vaultCollateral).toFixed(2) }} </div>
               <div class="flex items-center justify-end">{{parseFloat(vault.debt).toFixed(2) }}</div>
               <div class="flex items-center justify-end">{{parseFloat(vault.ratio).toFixed(2)}}</div>
-           </div>
+           </div> -->
            
-                <div v-if="vaults.length == 0" class="flex-col space-y-2"><div class="w-full text-center py-6">You have no vaults.</div></div>
-                <div class="rounded-lg bg-yellow-400 bg-opacity-20 p-4 mt-4"><span class="text-sm text-white flex flex-row text-center">55,264,387.665 MAI available to mint<span style="margin-left: 4px;">
+                <div v-if="vaults.length == 0" class="flex-col space-y-2"><div class="w-full text-center py-6" style="color: white;">You have no vaults.</div></div>
+                <div class="rounded-lg bg-yellow-400 bg-opacity-20 p-4 mt-4"><span class="text-sm text-white flex flex-row text-center">55,264,387.665 gDai available to mint<span style="margin-left: 4px;">
                     <div class="sc-bwzfXH kNDdYo">
                         <div class="sc-ifAKCX dCBhOg">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
@@ -119,7 +200,6 @@ export default {
       return {
         valtId : '',
         search: false,
-        vaults : [],
         dialog : false,
           logo : require('@/assets/image.png'),
              headers: [
@@ -137,21 +217,48 @@ export default {
       }
   },
    computed: {
+    bnbprice : function(){
+    return this.$store.state.vault.ethPrice;
+    },
+    gDaiPrice : function(){
+    return this.$store.state.vault.gDaiPrice;
+    },
     user : function(){
      return this.$store.state.currentUser.user;
    },
-   
+   vaults : function(){
+    return this.$store.state.vault.vaults;
+   }
     },
+  watch: {
+    // user : function(newuser){
+    //   console.log("heloo")
+    //  if(newuser.id){
+    //   this.rescanVaults();
+    //   // this.loadVault();
+    //  }
+    // }
+  },
   mounted(){
-   setTimeout(() => {
-    this.rescanVaults();
-    this.loadVault();
-   },1000)
+  //  setInterval(() => {
+  //    if(this.user.address){
+  //     console.log("heloioooo")
+  //     this.rescanVaults();
+  //     // this.loadVault();
+  //    }
+  //  }, 1000);
   },
   methods : {
     openMonitor(){
-                this.$router.push({ path: "/monitor" })
-            },
+      this.$router.push({ path: "/monitor" })
+     },
+     expandVault(id){
+     if(document.querySelector("#vault" + id).style.display == "block" ){
+      document.querySelector("#vault" + id).style.display = "none";
+     }else{
+      document.querySelector("#vault" + id).style.display = "block"
+     }
+     },
    async searchVault(){
     this.$store.dispatch("loading/activateLoader" , true);
       if(this.valtId == ''){
@@ -163,7 +270,7 @@ export default {
       let valid = await window.tokenContract.methods.vaultExistence(this.valtId).call();
       if(valid){
         this.$store.dispatch("loading/activateLoader" , false);
-        this.$router.push("/vault/"+this.valtId);
+        this.$router.push("/vaultmenu/"+this.valtId);
       }else{
         this.$toast.error("Enter a Valid Vault ID");
         this.$store.dispatch("loading/activateLoader" , false);
@@ -171,11 +278,11 @@ export default {
       
     },
     openSearch(){
-      this.search =  true;
+      this.search =  !this.search;
     },
     openVault(id){
 
-      this.$router.push("/vault/"+id);
+      this.$router.push("/vaultmenu/"+id);
     },
     async loadVault(){
       this.vaults = [];
@@ -202,10 +309,11 @@ export default {
      }
     },
      async rescanVaults(){
+      console.log("vaultcount 1");
        let vaultcount = await window.tokenContract.methods.vaultCount().call();
-       console.log(vaultcount);
-       let vaults = localStorage.getItem(this.user.address.toLowerCase()) != null ? JSON.parse(localStorage.getItem(this.user.address.toLowerCase()))  : [];
-       console.log(vaults);
+       console.log("vaultcount");
+       console.log("count "+vaultcount);
+     
        var array = [];
        for(let index = 0 ; index < vaultcount; index++){
          let vaultOwner =  await window.tokenContract.methods.vaultOwner(index).call();

@@ -6,18 +6,79 @@ const state = {
     vaultOwner :false,
     rapayDialog : false,
     transferVaultDialog : false,
-    vault : {}
+    vault : {},
+    gdaiBalance : 0,
+    EthBalance: 0,
+    vaults : [],
+    ethPrice : 0,
+    gDaiPrice : 0
 }
 
 const getters = {}
 const actions = {
-    // async approveSpend({state},data){
-    //     window.web3 = new Web3(window.ethereum);
-    //     window.currentasset1   =  await new window.web3.eth.Contract( ERC20Abi , data.address);
-    //    await window.currentasset1.methods.approve(state.activeNetwork.bridgeAddress ,window.web3.utils.toBN(window.web3.utils.toWei(data.amount)).toString() ).send({from: this.state.currentUser.user.address});
-         
-    // },
-    async loadVault({commit} , id ){
+  async getPriceData({commit}){
+    let ethPrice = await window.tokenContract.methods.getEthPriceSource().call();
+    let gDaiPrice = await window.tokenContract.methods.getTokenPriceSource().call();
+    ethPrice = window.web3.utils.fromWei(ethPrice ,"Gwei");
+    gDaiPrice = window.web3.utils.fromWei(gDaiPrice ,"Gwei");
+    ethPrice = parseFloat(ethPrice) * 10;
+    gDaiPrice = parseFloat(gDaiPrice) * 10;
+
+    commit("setEthPrice" , ethPrice);
+    commit("setgDaiPrice" , gDaiPrice);
+
+
+  } ,
+  async  loadVaults({commit} ){
+        let vaultcount = await window.tokenContract.methods.vaultCount().call();
+      
+        var array = [];
+            for(let index = 0 ; index < vaultcount; index++){
+              let vaultOwner =  await window.tokenContract.methods.vaultOwner(index).call();
+              console.log(vaultOwner);
+             if(vaultOwner.toLowerCase() == this.user.address.toLowerCase()){
+                array.push(index);
+             }
+            }
+            let vaults = [];
+            console.log(array);
+            for(let index = 0; index < array.length ; index++){
+            let vault = {};
+            vault.id = array[index];
+            vault.debt = await window.tokenContract.methods.vaultDebt(array[index]).call();
+            vault.debt = window.web3.utils.fromWei(vault.debt);
+            vault.vaultCollateral = await window.tokenContract.methods.vaultCollateral(array[index]).call();
+            vault.vaultCollateral = window.web3.utils.fromWei(vault.vaultCollateral);
+           
+            
+           // if(vault.debt != '0') {   
+           //   vault.ratio = await  window.web3.utils.toBN(vault.vaultCollateral).div(window.web3.utils.toBN(vault.debt)).toString();
+           // }
+           //  else {
+           //   vault.ratio = 0;
+           //  }
+           vault.ratio = 0;
+            vaults.push(vault);
+          }
+          
+          commit("setVaults" , vaults);   
+    },
+    setVaults({commit} , vaults) {
+        commit("setVaults" , vaults);
+    },
+    async loadBalances({commit}){
+      let  gdaiBalance = await window.tokenContract.methods.balanceOf(this.state.currentUser.user.address).call();
+      let EthBalance = await window.web3.eth.getBalance(this.state.currentUser.user.address);
+
+     EthBalance = window.web3.utils.fromWei(EthBalance, "ether");
+     gdaiBalance = window.web3.utils.fromWei(gdaiBalance, "ether");
+     EthBalance = parseFloat(EthBalance).toFixed(4);
+     gdaiBalance = parseFloat(gdaiBalance).toFixed(4);
+        commit("setGdaiBalance" ,gdaiBalance);
+        commit("setEthBalance" ,EthBalance);
+
+    },
+    async loadVault({state ,commit} , id ){
         let owner = await window.tokenContract.methods.vaultOwner(id).call();
         if(this.state.currentUser.user.address.toLowerCase() == owner.toLowerCase()){
             commit("setIsOwner" , true);
@@ -29,15 +90,16 @@ const actions = {
        vault.debt = await window.tokenContract.methods.vaultDebt(id).call();
        vault.debt = window.web3.utils.fromWei(vault.debt);
        vault.vaultCollateral = await window.tokenContract.methods.vaultCollateral(id).call();
-       vault.vaultCollateral= window.web3.utils.fromWei(vault.vaultCollateral);
-    //   if(vault.vaultCollateral != '0') {   
-    //     vault.ratio = await  window.web3.utils.toBN(vault.vaultCollateral).div(window.web3.utils.toBN(vault.debt)).toString();
-    //   }
-    //    else {
-    //     vault.ratio = 0;
-    //    }
-       vault.ratio = 0;
-       this.vaultData = vault;
+       vault.vaultCollateral = window.web3.utils.fromWei(vault.vaultCollateral);
+       vault.availableBorrow = (((parseFloat(vault.vaultCollateral) * parseFloat(state.ethPrice) ) / (150 * parseFloat( state.gDaiPrice))) * 100) - parseFloat(vault.debt);
+       if(parseFloat(vault.debt) !=0) {   
+         vault.ratio = (parseFloat(vault.vaultCollateral) * parseFloat(state.ethPrice) / (parseFloat(vault.debt) *parseFloat( state.gDaiPrice))) * 100;
+ 
+       }
+        else {
+         vault.ratio = 0;
+        }
+       
        commit("setVaultData" , vault);
     },
     transferVaultDialog({commit} , status){
@@ -69,6 +131,21 @@ const actions = {
 }
 };
 const mutations = {
+    setEthPrice(state , ethPrice){
+        state.ethPrice = ethPrice;
+    },
+    setgDaiPrice(state , gDaiPrice){
+        state.gDaiPrice = gDaiPrice;
+    },
+    setVaults(state , vaults){
+     state.vaults =  vaults;
+    },
+    setGdaiBalance(state  , gdaiBalance){
+        state.gdaiBalance  = gdaiBalance;
+    },
+    setEthBalance(state  ,EthBalance){
+        state.EthBalance  = EthBalance;
+    },
     setTransferVaultDialog(state , status){
         state.transferVaultDialog  = status;
        },

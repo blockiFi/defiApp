@@ -8,7 +8,7 @@
 
     <v-card>
       <v-card-title class="text-h5 grey lighten-2">
-       Withdraw Collateral
+       Withdraw Collateral   <span style="color:blue ; margin-left: 50px ;cursor: pointer" @click="setMax"> Max</span>
       </v-card-title>
 
       <v-text-field
@@ -35,6 +35,7 @@
         >
           withdraw
         </v-btn>
+        
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -42,7 +43,7 @@
 <script>
 
     export default {
-        props: ['id'],
+        props: ['id' , 'colateral'],
         data(){
             return {
                 withdrawAmount: 0   
@@ -57,6 +58,10 @@
             },
         },
         methods : {
+          setMax(){
+            console.log(this.colateral)
+            this.withdrawAmount = this.colateral;
+          },
          async   withdraw(){
                 this.$store.dispatch("loading/activateLoader" , true)
         try {     

@@ -12,6 +12,7 @@
       </v-card-title>
 
       <v-text-field
+      style="color: black"
       v-model="depositAmount"
       label="Deposit Amount"
       type="number"

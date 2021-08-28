@@ -12,18 +12,20 @@
 <div class="absolute top-100 right-0 left-50 overflow-hidden" style="z-index: -1;"></div>
 
 <div class="container max-w-3xl mx-auto px-4 md:px-0">
-    <vault></vault>
-    <!-- <div class="relative bg-dm-tertiary" style="border-radius: 10px; background-image: url(&quot;&quot;); background-repeat: no-repeat; background-size: contain; background-position: center bottom;">
+    <vault v-if="user.address"></vault>
+    <div v-else class="relative bg-dm-tertiary" style="border-radius: 10px; background-image: url(&quot;&quot;); background-repeat: no-repeat; background-size: contain; background-position: center bottom;">
         <div>
             
             <div class="px-2 py-4 sm:p-8">
                
                 
-                    <div class="flex-col space-y-2"><div class="w-full text-center py-6"><h2 class="" style="text-align:center; color : white">Please connect your wallet!</h2></div></div>
+                    <div class="flex-col space-y-2">
+                        <div class="w-full text-center py-6">
+                            <h2 class="" style="text-align:center; color : white">Please connect your wallet!</h2></div></div>
                    
         </div>
     </div>
-</div> -->
+</div>
 
 
 </div>

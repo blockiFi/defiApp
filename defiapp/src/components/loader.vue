@@ -3,7 +3,7 @@
  <div class="loader"  v-show="loading">
         <div class="nb-spinner"></div>
 </div>
-<div class="flex flex-col items-start overflow-x-hidden h-full bg-dm-primary"   v-show="!loading" >
+<div class="flex flex-col items-start overflow-x-hidden h-full bg-dm-primary"   v-if="!loading" >
         <v-app style="background : none; margin:0 ; padding : 0">
         <router-view></router-view>
         </v-app>
@@ -27,23 +27,23 @@ export default {
       setTimeout( ()=> {
              this.$store.dispatch("loading/activateLoader" , false)
       }, 1000);
-      this.$store.dispatch("currentUser/setUser" , localStorage.getItem("user") != null ? JSON.parse(localStorage.getItem("user"))  : {});
+  //     this.$store.dispatch("currentUser/setUser" , localStorage.getItem("user") != null ? JSON.parse(localStorage.getItem("user"))  : {});
    
-   this.$store.dispatch("metamask/getNetwork");
-   this.$store.dispatch('metamask/innitaliseWeb3');
-   window.ethereum.on('accountsChanged', function (accounts) {
-    console.log(accounts[0]);
-    let user = {};
-        user.id  =  Math.floor(Math.random() * 1000) + 1;
-        user.address = accounts[0];
-        localStorage.setItem("user",JSON.stringify(user));
-  });
-    window.ethereum.on('disconnect', function (accounts) {
-    console.log(accounts[0]);
-    console.log("disconnected");
-        localStorage.removeItem("user");
+  //  this.$store.dispatch("metamask/getNetwork");
+  //  this.$store.dispatch('metamask/innitaliseWeb3');
+  //  window.ethereum.on('accountsChanged', function (accounts) {
+  //   console.log(accounts[0]);
+  //   let user = {};
+  //       user.id  =  Math.floor(Math.random() * 1000) + 1;
+  //       user.address = accounts[0];
+  //       localStorage.setItem("user",JSON.stringify(user));
+  // });
+  //   window.ethereum.on('disconnect', function (accounts) {
+  //   console.log(accounts[0]);
+  //   console.log("disconnected");
+  //       localStorage.removeItem("user");
       
-      })
+  //     })
     }
     
 
